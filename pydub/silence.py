@@ -35,8 +35,8 @@ def detect_silence(audio_segment, min_silence_len=1000, silence_thresh=-16, seek
 
     # guarantee last_slice_start is included in the range
     # to make sure the last portion of the audio is searched
-    # if last_slice_start % seek_step:
-    #     slice_starts = itertools.chain(slice_starts, [last_slice_start])
+    if last_slice_start % seek_step:
+        slice_starts = itertools.chain(slice_starts, [last_slice_start])
 
     for i in slice_starts:
         audio_slice = audio_segment[i:i + min_silence_len]
@@ -53,19 +53,19 @@ def detect_silence(audio_segment, min_silence_len=1000, silence_thresh=-16, seek
     prev_i = silence_starts.pop(0)
     current_range_start = prev_i
 
-    for silence_start_i in silence_starts:
-        continuous = (silence_start_i == prev_i + seek_step)
+    # for silence_start_i in silence_starts:
+    #     continuous = (silence_start_i == prev_i + seek_step)
 
-        # sometimes two small blips are enough for one particular slice to be
-        # non-silent, despite the silence all running together. Just combine
-        # the two overlapping silent ranges.
-        silence_has_gap = silence_start_i > (prev_i + min_silence_len)
+    #     # sometimes two small blips are enough for one particular slice to be
+    #     # non-silent, despite the silence all running together. Just combine
+    #     # the two overlapping silent ranges.
+    #     silence_has_gap = silence_start_i > (prev_i + min_silence_len)
 
-        if not continuous and silence_has_gap:
-            silent_ranges.append([current_range_start,
-                                  prev_i + min_silence_len])
-            current_range_start = silence_start_i
-        prev_i = silence_start_i
+    #     if not continuous and silence_has_gap:
+    #         silent_ranges.append([current_range_start,
+    #                               prev_i + min_silence_len])
+    #         current_range_start = silence_start_i
+    #     prev_i = silence_start_i
 
     silent_ranges.append([current_range_start,
                           prev_i + min_silence_len])
